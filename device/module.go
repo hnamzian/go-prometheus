@@ -2,16 +2,15 @@ package device
 
 import (
 	"net/http"
-
-	"github.com/prometheus/client_golang/prometheus"
+	"prometest/metrics"
 )
 
-type Module struct {}
+type Module struct{}
 
-func (m *Module) Start(mux *http.ServeMux, reg prometheus.Registerer) {
+func (m *Module) Start(mux *http.ServeMux, metrics *metrics.Metrics) {
 	ds := NewDevices()
 
-	dm := NewMetrics(reg)
+	dm := NewMetrics(metrics)
 	dm.SetDevices(len(ds))
 
 	dh := NewHandlers(dm, ds)

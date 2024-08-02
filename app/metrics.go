@@ -1,23 +1,25 @@
 package app
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"prometest/metrics"
+
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 type Metrics struct {
-	info prometheus.GaugeVec
+	info *prometheus.GaugeVec
 }
 
-func NewMetrics(reg prometheus.Registerer) *Metrics {
-	m := &Metrics{
-		info: *prometheus.NewGaugeVec(prometheus.GaugeOpts{
+func NewMetrics(m *metrics.Metrics) *Metrics {
+	ma := &Metrics{
+		info: m.NewGaugeVec(&metrics.GaugeVecOpts{
 			Namespace: "app",
 			Name:      "app_info",
 			Help:      "Application information",
-		}, []string{"version"}),
+			Labels:    []string{"version"},
+		}),
 	}
-
-	reg.MustRegister(m.info)
-
-	return m
+	return ma
 }
 
 func (m *Metrics) SetVersion(ver string) {

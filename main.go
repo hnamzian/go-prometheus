@@ -3,11 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"prometest/app"
 	dev "prometest/device"
+	"prometest/metrics"
 )
 
 var version string
@@ -19,15 +17,14 @@ func init() {
 func main() {
 	mux := http.NewServeMux()
 
-	reg := prometheus.NewRegistry()
-	promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
-	mux.Handle("/metrics", promHandler)
+	m := metrics.NewMetrics()
+	m.RegisterHandler(mux)
 
-	am := app.NewMetrics(reg)
+	am := app.NewMetrics(m)
 	am.SetVersion(version)
 
 	dm := dev.Module{}
-	dm.Start(mux, reg)
+	dm.Start(mux, m)
 
 	s := http.Server{
 		Addr:    ":3000",
